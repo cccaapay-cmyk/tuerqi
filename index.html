@@ -1,0 +1,37 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Redirecting...</title>
+</head>
+<body>
+  <p>Redirecting...</p>
+
+  <script>
+    const numbers = [
+      "34672876606",
+      "34613868043",
+      "34632247151",
+      "34613795631",
+      "34669950455",
+      "34696685705",
+      "34722565130",
+      "34632273504",
+      "34608775292",
+      "34628881698",
+      "34631764798",
+      "34632285779",
+      "34631011974"
+    ];
+
+    const links = numbers.map(n => "https://wa.me/" + n);
+
+    // 纯随机选择一个
+    const randomIndex = Math.floor(Math.random() * links.length);
+
+    // 跳转
+    window.location.replace(links[randomIndex]);
+  </script>
+</body>
+</html>
