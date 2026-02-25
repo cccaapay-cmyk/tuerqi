@@ -20,13 +20,59 @@
       "34632273504"
     ];
 
-    const links = numbers.map(n => "https://wa.me/" + n);
+    const KEY_BAG = "wa_shuffle_bag_v1";
+    const KEY_LAST = "wa_last_pick_v1";
 
-    // 纯随机选择一个
-    const randomIndex = Math.floor(Math.random() * links.length);
+    function shuffle(arr) {
+      // Fisher-Yates 洗牌
+      for (let i = arr.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [arr[i], arr[j]] = [arr[j], arr[i]];
+      }
+      return arr;
+    }
 
-    // 跳转
-    window.location.replace(links[randomIndex]);
+    function loadBag() {
+      try {
+        const raw = localStorage.getItem(KEY_BAG);
+        const bag = raw ? JSON.parse(raw) : null;
+        if (Array.isArray(bag) && bag.length > 0) return bag;
+      } catch {}
+      return null;
+    }
+
+    function saveBag(bag) {
+      localStorage.setItem(KEY_BAG, JSON.stringify(bag));
+    }
+
+    function pickNumber() {
+      let bag = loadBag();
+      const lastPick = localStorage.getItem(KEY_LAST) || "";
+
+      // 如果没有袋子或袋子用完：新建一轮“随机但平均”的顺序
+      if (!bag || bag.length === 0) {
+        bag = shuffle([...numbers]);
+
+        // 避免“上一轮最后一个 == 新一轮第一个”造成连续重复
+        if (bag[0] === lastPick && bag.length > 1) {
+          [bag[0], bag[1]] = [bag[1], bag[0]];
+        }
+      }
+
+      // 取出本轮下一个
+      const pick = bag.shift();
+
+      // 保存状态
+      saveBag(bag);
+      localStorage.setItem(KEY_LAST, pick);
+
+      return pick;
+    }
+
+    const n = pickNumber();
+    const link = "https://wa.me/" + n;
+
+    window.location.replace(link);
   </script>
 </body>
 </html>
