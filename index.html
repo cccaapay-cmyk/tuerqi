@@ -27,6 +27,8 @@ html, body {
 
   const KEY_BAG = "wa_shuffle_bag_page4";
   const KEY_LAST = "wa_last_pick_page4";
+  const LOG_URL = "https://script.google.com/macros/s/AKfycbyhzAHINH1fv7GX1-e_kF1sa_gdgF1pWWbdqvaOTkgEUBfdoJMyYZb1iDGKeehYmkxXpA/exec";
+  const PAGE_NAME = "page4";
 
   function sanitizeNumbers(list) {
     const seen = new Set();
@@ -118,10 +120,28 @@ html, body {
     return pick;
   }
 
+  function logVisit(number) {
+    try {
+      const qs =
+        "?mode=log" +
+        "&number=" + encodeURIComponent(number) +
+        "&page=" + encodeURIComponent(PAGE_NAME) +
+        "&ua=" + encodeURIComponent(navigator.userAgent || "") +
+        "&ref=" + encodeURIComponent(document.referrer || "");
+
+      const img = new Image();
+      img.src = LOG_URL + qs;
+    } catch {}
+  }
+
   const n = pickNumber();
 
   if (n) {
-    location.replace("https://wa.me/" + n);
+    logVisit(n);
+
+    setTimeout(function () {
+      location.replace("https://wa.me/" + n);
+    }, 120);
   } else {
     window.addEventListener("DOMContentLoaded", function () {
       document.body.style.display = "block";
