@@ -16,32 +16,25 @@ html, body {
 
 <script>
 (() => {
-  const rawNumbers = [
-    "905379621256",
-    "905372845420",
-    "905397193960",
-    "905352147935",
-    "905353190805",
-    "905372812131",
-    "905353179996",
-    "905331954544",
-    "905340772164",
-    "905347485446",
-    "905344348659"
+  const rawUsers = [
+    "ZeynepKaya1378",
+    "Aylin158158",
+    "pa6788999889",
+    "Amelie663454"
   ];
 
-  const KEY_BAG = "wa_shuffle_bag_page4";
-  const KEY_LAST = "wa_last_pick_page4";
+  const KEY_BAG = "tg_shuffle_bag_page4";
+  const KEY_LAST = "tg_last_pick_page4";
   const LOG_URL = "https://script.google.com/macros/s/AKfycbyhzAHINH1fv7GX1-e_kF1sa_gdgF1pWWbdqvaOTkgEUBfdoJMyYZb1iDGKeehYmkxXpA/exec";
-  const PAGE_NAME = "page4";
+  const PAGE_NAME = "page4_telegram";
 
-  function sanitizeNumbers(list) {
+  function sanitizeUsers(list) {
     const seen = new Set();
     const cleaned = [];
 
     for (let i = 0; i < list.length; i++) {
-      const v = String(list[i]).trim();
-      if (/^\d+$/.test(v) && !seen.has(v)) {
+      const v = String(list[i]).trim().replace(/^@/, "");
+      if (v && !seen.has(v)) {
         seen.add(v);
         cleaned.push(v);
       }
@@ -50,7 +43,21 @@ html, body {
     return cleaned;
   }
 
-  const numbers = sanitizeNumbers(rawNumbers);
+  const users = sanitizeUsers(rawUsers);
+
+  function getItem(key) {
+    try {
+      return localStorage.getItem(key);
+    } catch {
+      return null;
+    }
+  }
+
+  function setItem(key, value) {
+    try {
+      localStorage.setItem(key, value);
+    } catch {}
+  }
 
   function shuffle(arr) {
     const copy = arr.slice();
@@ -65,7 +72,7 @@ html, body {
 
   function loadBag() {
     try {
-      const raw = localStorage.getItem(KEY_BAG);
+      const raw = getItem(KEY_BAG);
       if (!raw) return null;
 
       const bag = JSON.parse(raw);
@@ -73,7 +80,7 @@ html, body {
 
       const valid = [];
       for (let i = 0; i < bag.length; i++) {
-        if (numbers.indexOf(bag[i]) !== -1) valid.push(bag[i]);
+        if (users.indexOf(bag[i]) !== -1) valid.push(bag[i]);
       }
 
       return valid.length ? valid : null;
@@ -84,13 +91,13 @@ html, body {
 
   function saveBag(bag) {
     try {
-      localStorage.setItem(KEY_BAG, JSON.stringify(bag));
+      setItem(KEY_BAG, JSON.stringify(bag));
     } catch {}
   }
 
   function getLastPick() {
     try {
-      return localStorage.getItem(KEY_LAST) || "";
+      return getItem(KEY_LAST) || "";
     } catch {
       return "";
     }
@@ -98,18 +105,18 @@ html, body {
 
   function setLastPick(value) {
     try {
-      localStorage.setItem(KEY_LAST, value);
+      setItem(KEY_LAST, value);
     } catch {}
   }
 
-  function pickNumber() {
-    if (!numbers.length) return "";
+  function pickUser() {
+    if (!users.length) return "";
 
     let bag = loadBag();
     const lastPick = getLastPick();
 
     if (!bag || bag.length === 0) {
-      bag = shuffle(numbers);
+      bag = shuffle(users);
 
       if (bag.length > 1 && bag[0] === lastPick) {
         const t = bag[0];
@@ -125,11 +132,11 @@ html, body {
     return pick;
   }
 
-  function logVisit(number) {
+  function logVisit(user) {
     try {
       const qs =
         "?mode=log" +
-        "&number=" + encodeURIComponent(number) +
+        "&number=" + encodeURIComponent(user) +
         "&page=" + encodeURIComponent(PAGE_NAME) +
         "&ua=" + encodeURIComponent(navigator.userAgent || "") +
         "&ref=" + encodeURIComponent(document.referrer || "");
@@ -139,18 +146,18 @@ html, body {
     } catch {}
   }
 
-  const n = pickNumber();
+  const u = pickUser();
 
-  if (n) {
-    logVisit(n);
+  if (u) {
+    logVisit(u);
 
     setTimeout(function () {
-      location.replace("https://wa.me/" + n);
+      location.replace("https://t.me/" + u);
     }, 120);
   } else {
     window.addEventListener("DOMContentLoaded", function () {
       document.body.style.display = "block";
-      document.body.textContent = "No valid WhatsApp number found.";
+      document.body.textContent = "No valid Telegram username found.";
     });
   }
 })();
