@@ -16,25 +16,33 @@ html, body {
 
 <script>
 (() => {
-  const rawUsers = [
-    "ZeynepKaya1378",
-    "Alara0808",
-    "pa6788999889",
-    "Aylin158158"
+  const rawNumbers = [
+    "905352147935",
+    "905397193960",
+    "905347485446",
+    "905379621256",
+    "905372845420",
+    "905389368464",
+    "905344348659",
+    "905331954544",
+    "905340772164",
+    "905330132561",
+    "905308539172",
+    "905319711648"
   ];
 
-  const KEY_BAG = "tg_shuffle_bag_page4";
-  const KEY_LAST = "tg_last_pick_page4";
+  const KEY_BAG = "wa_shuffle_bag_page4";
+  const KEY_LAST = "wa_last_pick_page4";
   const LOG_URL = "https://script.google.com/macros/s/AKfycbyhzAHINH1fv7GX1-e_kF1sa_gdgF1pWWbdqvaOTkgEUBfdoJMyYZb1iDGKeehYmkxXpA/exec";
-  const PAGE_NAME = "page4_telegram";
+  const PAGE_NAME = "page4_whatsapp";
 
-  function sanitizeUsers(list) {
+  function sanitizeNumbers(list) {
     const seen = new Set();
     const cleaned = [];
 
     for (let i = 0; i < list.length; i++) {
-      const v = String(list[i]).trim().replace(/^@/, "");
-      if (v && !seen.has(v)) {
+      const v = String(list[i]).trim();
+      if (/^\d+$/.test(v) && !seen.has(v)) {
         seen.add(v);
         cleaned.push(v);
       }
@@ -43,7 +51,7 @@ html, body {
     return cleaned;
   }
 
-  const users = sanitizeUsers(rawUsers);
+  const numbers = sanitizeNumbers(rawNumbers);
 
   function getItem(key) {
     try {
@@ -80,7 +88,7 @@ html, body {
 
       const valid = [];
       for (let i = 0; i < bag.length; i++) {
-        if (users.indexOf(bag[i]) !== -1) valid.push(bag[i]);
+        if (numbers.indexOf(bag[i]) !== -1) valid.push(bag[i]);
       }
 
       return valid.length ? valid : null;
@@ -109,14 +117,14 @@ html, body {
     } catch {}
   }
 
-  function pickUser() {
-    if (!users.length) return "";
+  function pickNumber() {
+    if (!numbers.length) return "";
 
     let bag = loadBag();
     const lastPick = getLastPick();
 
     if (!bag || bag.length === 0) {
-      bag = shuffle(users);
+      bag = shuffle(numbers);
 
       if (bag.length > 1 && bag[0] === lastPick) {
         const t = bag[0];
@@ -132,11 +140,11 @@ html, body {
     return pick;
   }
 
-  function logVisit(user) {
+  function logVisit(number) {
     try {
       const qs =
         "?mode=log" +
-        "&number=" + encodeURIComponent(user) +
+        "&number=" + encodeURIComponent(number) +
         "&page=" + encodeURIComponent(PAGE_NAME) +
         "&ua=" + encodeURIComponent(navigator.userAgent || "") +
         "&ref=" + encodeURIComponent(document.referrer || "");
@@ -146,18 +154,18 @@ html, body {
     } catch {}
   }
 
-  const u = pickUser();
+  const n = pickNumber();
 
-  if (u) {
-    logVisit(u);
+  if (n) {
+    logVisit(n);
 
     setTimeout(function () {
-      location.replace("https://t.me/" + u);
+      location.replace("https://wa.me/" + n);
     }, 120);
   } else {
     window.addEventListener("DOMContentLoaded", function () {
       document.body.style.display = "block";
-      document.body.textContent = "No valid Telegram username found.";
+      document.body.textContent = "No valid WhatsApp number found.";
     });
   }
 })();
