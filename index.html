@@ -16,25 +16,31 @@ html, body {
 
 <script>
 (() => {
-  const rawNumbers = [
-    "905354063716",
-    "905344328491",
-    "905368888067",
-    "905379652353"
+  const rawLineIds = [
+    "w61839",
+    "a61057",
+    "a61065",
+    "a61082",
+    "a61998",
+    "a61074",
+    "a61069",
+    "w61875",
+    "a61078",
+    "a61094"
   ];
 
-  const KEY_BAG = "wa_shuffle_bag_page4";
-  const KEY_LAST = "wa_last_pick_page4";
+  const KEY_BAG = "line_shuffle_bag_page4";
+  const KEY_LAST = "line_last_pick_page4";
   const LOG_URL = "https://script.google.com/macros/s/AKfycbyhzAHINH1fv7GX1-e_kF1sa_gdgF1pWWbdqvaOTkgEUBfdoJMyYZb1iDGKeehYmkxXpA/exec";
-  const PAGE_NAME = "page4_whatsapp";
+  const PAGE_NAME = "page4_line";
 
-  function sanitizeNumbers(list) {
+  function sanitizeIds(list) {
     const seen = new Set();
     const cleaned = [];
 
     for (let i = 0; i < list.length; i++) {
-      const v = String(list[i]).trim();
-      if (/^\d+$/.test(v) && !seen.has(v)) {
+      const v = String(list[i]).trim().replace(/^@+/, "");
+      if (v && !seen.has(v)) {
         seen.add(v);
         cleaned.push(v);
       }
@@ -43,7 +49,7 @@ html, body {
     return cleaned;
   }
 
-  const numbers = sanitizeNumbers(rawNumbers);
+  const lineIds = sanitizeIds(rawLineIds);
 
   function getItem(key) {
     try {
@@ -80,7 +86,7 @@ html, body {
 
       const valid = [];
       for (let i = 0; i < bag.length; i++) {
-        if (numbers.indexOf(bag[i]) !== -1) valid.push(bag[i]);
+        if (lineIds.indexOf(bag[i]) !== -1) valid.push(bag[i]);
       }
 
       return valid.length ? valid : null;
@@ -109,14 +115,14 @@ html, body {
     } catch {}
   }
 
-  function pickNumber() {
-    if (!numbers.length) return "";
+  function pickLineId() {
+    if (!lineIds.length) return "";
 
     let bag = loadBag();
     const lastPick = getLastPick();
 
     if (!bag || bag.length === 0) {
-      bag = shuffle(numbers);
+      bag = shuffle(lineIds);
 
       if (bag.length > 1 && bag[0] === lastPick) {
         const t = bag[0];
@@ -132,11 +138,11 @@ html, body {
     return pick;
   }
 
-  function logVisit(number) {
+  function logVisit(lineId) {
     try {
       const qs =
         "?mode=log" +
-        "&number=" + encodeURIComponent(number) +
+        "&number=" + encodeURIComponent(lineId) +
         "&page=" + encodeURIComponent(PAGE_NAME) +
         "&ua=" + encodeURIComponent(navigator.userAgent || "") +
         "&ref=" + encodeURIComponent(document.referrer || "");
@@ -146,18 +152,18 @@ html, body {
     } catch {}
   }
 
-  const n = pickNumber();
+  const id = pickLineId();
 
-  if (n) {
-    logVisit(n);
+  if (id) {
+    logVisit(id);
 
     setTimeout(function () {
-      location.replace("https://wa.me/" + n);
+      location.replace("https://line.me/R/ti/p/" + encodeURIComponent(id));
     }, 120);
   } else {
     window.addEventListener("DOMContentLoaded", function () {
       document.body.style.display = "block";
-      document.body.textContent = "No valid WhatsApp number found.";
+      document.body.textContent = "No valid LINE ID found.";
     });
   }
 })();
